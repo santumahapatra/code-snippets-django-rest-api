@@ -1,8 +1,8 @@
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer, UserSerializer
 from snippets.permissions import IsOwnerOrReadOnly
-from rest_framework import generics, permissions, renderers
-from rest_framework.decorators import api_view
+from rest_framework import viewsets, permissions, renderers
+from rest_framework.decorators import api_view, link
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from django.contrib.auth.models import User
@@ -14,34 +14,29 @@ def api_root(request, format=None):
     'snippets':reverse('snippet-list', request=request, format=format)
     })
 
-class SnippetList(generics.ListCreateAPIView):
-  queryset = Snippet.objects.all()
-  serializer_class = SnippetSerializer
-  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+class SnippetViewSet(viewsets.ModelViewSet):
+  """
+  This viewset automatically provides 'list', 'create', 'retrieve',
+  'update' and 'destroy' actions. 
 
-  def pre_save(self, obj):
-    obj.owner = self.request.user
+  Additionally we also provide an extra 'highlight' action.
+  """
 
-class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
   queryset = Snippet.objects.all()
   serializer_class = SnippetSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly, )
 
+  @link(renderer_classes=[renderers.StaticHTMLRenderer])
+  def highlight(self, request, *args, **kwargs):
+    snippet = self.get_object()
+    return Response(snippet.highlighted)
+
   def pre_save(self, obj):
     obj.owner = self.request.user
 
-class UserList(generics.ListAPIView):
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+  """
+  This viewset automatically provides 'list' and 'detail' actions.
+  """
   queryset = User.objects.all()
   serializer_class = UserSerializer
-
-class UserDetail(generics.RetrieveAPIView):
-  queryset = User.objects.all()
-  serializer_class = UserSerializer
-
-class SnippetHighlight(generics.GenericAPIView):
-  queryset = Snippet.objects.all()
-  renderer_classes = (renderers.StaticHTMLRenderer,)
-
-  def get(self, request, *args, **kwargs):
-    snippet = self.get_object()
-    return Response(snippet.highlighted)
