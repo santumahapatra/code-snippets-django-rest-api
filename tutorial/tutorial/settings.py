@@ -53,6 +53,10 @@ ROOT_URLCONF = 'tutorial.urls'
 
 WSGI_APPLICATION = 'tutorial.wsgi.application'
 
+REST_FRAMEWORK = {
+    'PAGINATE_BY':10
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
