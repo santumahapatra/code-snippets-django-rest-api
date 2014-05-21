@@ -14,7 +14,7 @@ $ git clone https://github.com/santumahapatra/code-snippets-django-rest-api
 First you need to checkout the code. 
 
 ```shell
-$ cd tutorial
+$ cd code-snippets-django-rest-api/tutorial
 $ python manage.py syncdb
 $ python manage.py runserver
 ```

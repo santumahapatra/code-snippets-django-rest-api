@@ -4,3 +4,4 @@ local
 lib
 *.pyc
 *.db
+*~
